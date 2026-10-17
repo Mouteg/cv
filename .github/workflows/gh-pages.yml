@@ -1,4 +1,4 @@
-name: Deploy exampleSite to GitHub Pages
+name: Deploy cvSite to GitHub Pages
 
 on:
   push:
@@ -35,13 +35,13 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Build
         run: |
-          hugo --source contour/exampleSite --themesDir ../.. \
+          hugo --source contour/cvSite --themesDir ../.. \
             --gc --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./contour/exampleSite/public
+          path: ./contour/cvSite/public
 
   deploy:
     needs: build

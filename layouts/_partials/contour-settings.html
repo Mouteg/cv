@@ -1,0 +1,8 @@
+{{- /* Terrain settings for contour.js. Context is the current page.
+       Returns site-wide params.contour merged with the page's front matter `contour` (the page wins).
+       Supported keys: cell, scale, levels, octaves, roughness, detail, ridged, smooth, interactive, morph, drift, spread, ping.
+       Unset keys keep the defaults in contour.js (or the caller's own values, e.g. the sidebar's cell). */ -}}
+{{- $settings := dict -}}
+{{- with site.Params.contour }}{{ $settings = merge $settings . }}{{ end -}}
+{{- with .Params.contour }}{{ $settings = merge $settings . }}{{ end -}}
+{{- return $settings -}}

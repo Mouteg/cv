@@ -9,7 +9,7 @@
   {{ if $is404 }}
   {{ partial "contour-canvas.html" (dict "class" "sidebar-terrain" "frame" "sidebar" "color" "--bg-rgb" "lattice" "132") }}
   {{ else }}
-  {{ partial "contour-canvas.html" (dict "class" "sidebar-terrain" "frame" "sidebar" "color" "--bg-rgb" "cell" "10") }}
+  {{ partial "contour-canvas.html" (dict "class" "sidebar-terrain" "frame" "sidebar" "color" "--bg-rgb" "cell" "10" "terrain" (partial "contour-settings.html" .)) }}
   {{ end }}
   {{ $frame := dict "class" "sidebar-field" "frame" "sidebar" }}
   {{ if $is404 }}

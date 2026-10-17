@@ -196,9 +196,10 @@ body { min-height: 100vh; }
 .post-body li { margin-bottom: 0.5em; }
 
 .post-body code {
-  font-size: 13px;
+  font-size: 17px;
   border: 1px solid rgba(var(--fg-rgb), 0.35);
   padding: 1px 7px;
+  white-space: nowrap; /* don't split inline code across lines; a wrapped tag loses its side borders */
 }
 .post-body pre {
   margin: 0 0 1.7em;
@@ -211,6 +212,7 @@ body { min-height: 100vh; }
 .post-body pre code {
   border: none;
   padding: 0;
+  white-space: inherit; /* undo the nowrap above so code blocks keep their line breaks and spacing */
 }
 
 /* ---- コードコピーボタン（copy.js が挿入する） ----
@@ -646,4 +648,49 @@ body { min-height: 100vh; }
     min-height: calc(100vh - var(--band-h) - 96px);
   }
 }
+
+/* ---- "Save as PDF" button (placed in page content as raw HTML: <button class="print-cv">) ----
+   Same square, 1px-border chip style as the other controls; hover inverts the colours. */
+.print-cv {
+  margin: 0 0 1.7em;
+  padding: 6px 14px;
+  border: 1px solid var(--fg);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.print-cv:hover { background: var(--fg); color: var(--bg); }
+.print-cv:focus-visible { outline: 1px solid currentColor; outline-offset: 3px; }
+
+/* ---- Print / Save as PDF ----
+   Black text on white paper whatever the theme, and only the article: no sidebar, map,
+   controls, copyright, share chips or heading anchors. */
+@media print {
+  :root {
+    --fg: #000 !important;
+    --bg: #fff !important;
+    --fg-rgb: 0, 0, 0 !important;
+    --bg-rgb: 255, 255, 255 !important;
+  }
+  .sidebar, .site-controls, .copyright, .post-share, .print-cv, .heading-anchor, .post-meta, .post-nav {
+    display: none !important;
+  }
+  .content { margin: 0 !important; }
+  .post { max-width: none; padding: 0; }
+  .post-body :is(h2, h3) { margin-top: 1.6em; break-after: avoid; }
+  .post-body li { break-inside: avoid; }
+  .post-body a { text-decoration: none; }
+  /* paper has no links: print each external address after its link text */
+  .post-body a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+  @page { margin: 16mm 14mm; }
 }

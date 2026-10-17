@@ -1,0 +1,14 @@
+{{- /* Dark palette toggle (fg ⇄ fgd, bg ⇄ bgd). Rendered only when params.fgd or params.bgd is set.
+       Works independently of the theme toggle (which swaps foreground and background) and replaces the base colours.
+       Styled like theme-toggle (square button); the icon is a crescent moon. */ -}}
+{{- if or site.Params.fgd site.Params.bgd }}
+<button type="button"
+        class="theme-toggle"
+        data-fg-toggle
+        aria-label="Toggle dark palette"
+        title="Toggle dark palette">
+  <svg class="theme-toggle-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <path d="M10.5 1.9 A6.4 6.4 0 1 0 14.1 10.5 A5 5 0 0 1 10.5 1.9 Z" fill="currentColor"/>
+  </svg>
+</button>
+{{- end }}

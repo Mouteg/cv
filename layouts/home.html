@@ -1,5 +1,5 @@
 {{ define "main" }}
-{{ partial "contour-canvas.html" (dict "id" "terrain" "class" "page-terrain" "frame" "home") }}
+{{ partial "contour-canvas.html" (dict "id" "terrain" "class" "page-terrain" "frame" "home" "terrain" (partial "contour-settings.html" .)) }}
 
 <aside class="site-panel home-panel">
   {{ partial "copyright.html" . }}

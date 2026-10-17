@@ -23,9 +23,17 @@
   const instances = [];
   canvases.forEach(canvas => {
     const opts = {};
-    if (canvas.dataset.color) opts.color = canvas.dataset.color;
-    if (canvas.dataset.cell) opts.cell = Number(canvas.dataset.cell);
-    if (canvas.dataset.lattice) opts.lattice = Number(canvas.dataset.lattice);
+    const data = canvas.dataset;
+    if (data.color) opts.color = data.color;
+    if (data.lattice) opts.lattice = Number(data.lattice);
+    // Optional terrain settings (see contour-settings.html); unset or invalid ones keep the defaults.
+    ['cell', 'scale', 'levels', 'octaves', 'roughness', 'detail', 'morph', 'drift', 'spread'].forEach(key => {
+      const value = Number(data[key]);
+      if (data[key] !== undefined && Number.isFinite(value)) opts[key] = value;
+    });
+    ['interactive', 'ridged', 'smooth', 'ping'].forEach(key => {
+      if (data[key] !== undefined) opts[key] = data[key] !== 'false';
+    });
 
     const coords = findCoords(canvas);
     if (coords) {

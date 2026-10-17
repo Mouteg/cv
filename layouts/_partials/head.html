@@ -10,6 +10,10 @@
       t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
     }
     document.documentElement.setAttribute('data-theme', t);
+    // Dark palette choice (fg / fgd). fg is the default, so only set the attribute for fgd.
+    if (localStorage.getItem('contour-fg') === 'fgd') {
+      document.documentElement.setAttribute('data-fg', 'fgd');
+    }
   } catch (e) {
     document.documentElement.setAttribute('data-theme', 'dark');
   }
@@ -36,9 +40,14 @@
 {{- /* fg / bg が params にあれば base.css の素の二色（--fg-src / --bg-src）を上書きする。
        data-theme によるライト/ダークのスワップはこの二色を入れ替えて成立する。
        canvas 用の rgb 三つ組は hex から自動算出するので hex だけ指定すればよい。 */ -}}
-{{- if or site.Params.fg site.Params.bg }}
+{{- /* If fgd / bgd are set, they replace the base colours while data-fg="fgd" (toggled by fg-toggle.html). */ -}}
+{{- if or site.Params.fg site.Params.bg site.Params.fgd site.Params.bgd }}
 <style>:root{
 {{- with site.Params.fg }}--fg-src:{{ . }};--fg-src-rgb:{{ partial "hex2rgb.html" . }};{{ end }}
 {{- with site.Params.bg }}--bg-src:{{ . }};--bg-src-rgb:{{ partial "hex2rgb.html" . }};{{ end }}
-}</style>
+}
+{{- if or site.Params.fgd site.Params.bgd }}:root[data-fg="fgd"]{
+{{- with site.Params.fgd }}--fg-src:{{ . }};--fg-src-rgb:{{ partial "hex2rgb.html" . }};{{ end }}
+{{- with site.Params.bgd }}--bg-src:{{ . }};--bg-src-rgb:{{ partial "hex2rgb.html" . }};{{ end }}
+}{{ end }}</style>
 {{- end }}

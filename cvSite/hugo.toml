@@ -1,0 +1,87 @@
+baseURL = "https://mobiusone.org/"
+defaultContentLanguage = "en"
+locale = "en-AU"
+title = "Contour"
+theme = "contour"
+
+# Enable the standard taxonomies (tags / categories).
+# The tag list /tags/ and individual term pages /tags/<tag>/ are generated automatically.
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+# Add JSON output to the home page and use /index.json as the search index.
+[outputs]
+  home = ["html", "json"]
+
+[params]
+  # Colour scheme. If unset, the theme defaults are used (fg = #90f205 / bg = #0a0101).
+  # RGB values for the canvas are derived from the hex automatically, so hex alone is enough.
+  fg = "#f7faf9"  # foreground colour (lines, text)
+  fgd = "#cfe3e0" # dark-mode foreground; toggled with fg by the moon button at the top right (the button is hidden if neither fgd nor bgd is set)
+  bgd = "#0b1f1d" # dark-mode background; toggled with bg by the same button
+  bg = "#00756c"  # background colour
+#  bgd = "#05366e"  # dark blue
+  # Logo. Shows site.Title split into a bold part and a light "TLD" part.
+  logoName = "Ivan Oh"
+  logoTLD = " CV"
+  kicker = "Software Engineer · Sydney"
+  description = "A topographic Hugo theme for engineering blogs."
+  # SEO metadata (_partials/seo.html). author is used for the author meta tag and the JSON-LD author;
+  # images is the default share-preview image (under static/, 1200×630 recommended).
+  author = "Contour"
+  # images = ["/images/og-default.png"]
+  # Defaults for the map-style decorative labels.
+  axis = "Elevation / Isoline Field — N=54"
+  coords = "33.8688° S — 151.2093° E"
+  # Copy button on code blocks. Set to false only to hide it (shown by default).
+  # showCodeCopy = false
+  # Anchor link (#) at the end of headings. Set to false only to hide it (shown by default).
+  # showHeadingAnchors = false
+  # Share chips under the post title (hidden by default). Pick networks, in order, with shareNetworks.
+  # Available values: x, bluesky, threads, mastodon, hatena, hackernews, reddit, facebook, line,
+  # telegram, whatsapp, mail, copy (copy the URL), native (the device's share sheet)
+  showShare = true
+  shareNetworks = ["x", "bluesky", "hackernews", "reddit", "copy", "native"]
+
+  # Contour terrain settings (all optional; unset keys keep the theme's look).
+  # A page can override any of them in front matter under `contour:`.
+  [params.contour]
+    morph = 500       # click transition in ms (higher = slower); 0 = instant jump to a new map
+    drift = 0.3       # how much the terrain changes per click; lower = gentler (≥1 = clearly new map)
+    spread = 1        # >0 = the change starts at the click and spreads outward; higher = slower wavefront
+    ping = true       # expanding rings at the click point
+  #   scale = 0.0021     # terrain zoom; higher = smaller, busier features
+  #   levels = 54        # number of contour lines
+  #   cell = 12          # grid size in px; larger = more angular lines
+  #   octaves = 4        # noise layers; more = finer detail
+  #   roughness = 0.5    # 0..1; higher = jaggier lines
+  #   detail = 0.3       # 0..1; weight of fine detail vs large landforms
+  #   ridged = false     # true = sharp crests and pointy peaks
+  #   smooth = true      # false = faceted, kinked lines
+  #   interactive = true # false = clicking doesn't regenerate
+
+[markup]
+  [markup.highlight]
+    # Don't syntax-highlight code; show it in the theme's ruled (monochrome) style.
+    codeFences = false
+  [markup.goldmark.renderer]
+    # Allow raw HTML inside posts.
+    unsafe = true
+
+[[menu.main]]
+  name = "Summary"
+  pageRef = "/summary"
+  weight = 1
+[[menu.main]]
+  name = "Employment"
+  pageRef = "/employment"
+  weight = 2
+[[menu.main]]
+  name = "About"
+  pageRef = "/about"
+  weight = 3
+[[menu.main]]
+  name = "Tags"
+  pageRef = "/tags"
+  weight = 4
