@@ -1,0 +1,12 @@
+# テーマ既定の設定。site 側の hugo.toml にある値が優先され、
+# 未設定の項目だけがここのフォールバック値で補われる。
+
+[module]
+  [module.hugoVersion]
+    extended = true
+    min = "0.160.0"
+
+[params]
+  # 地図風装飾ラベルの既定値。site 側で上書きできる。
+  axis = "Elevation / Isoline Field"
+  coords = "0.0000° N — 0.0000° E"

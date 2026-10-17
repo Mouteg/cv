@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="{{ site.Language.Lang }}">
+<head>
+{{ partial "head.html" . }}
+</head>
+<body class="{{ partial "body-class.html" . }}">
+
+{{- /* ホーム以外はサイドバーとコピーライトが必ず付く（配置は各ページ CSS）。
+       中身（main ブロック）だけを各レイアウトに書かせ、外殻はここで一元化する。 */ -}}
+{{ if .IsHome }}
+{{ block "main" . }}{{ end }}
+{{ else }}
+{{ partial "sidebar.html" . }}
+{{ partial "site-controls.html" . }}
+{{ block "main" . }}{{ end }}
+{{ partial "copyright.html" . }}
+{{ end }}
+
+{{ partial "scripts.html" . }}
+</body>
+</html>

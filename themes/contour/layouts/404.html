@@ -1,0 +1,29 @@
+{{- /* 404 ページ。S3 / CloudFront 等の静的ホスティングはエラードキュメントとして
+       /404.html を配信するのが通例なので、テーマとして必ず生成しておく。
+       演出は「地図データが届かないまま、それ以外は正常に動いているコンソール」:
+       サイドバーは読み込み前のプレースホルダーグリッドになり、計測ラベルが
+       接続エラーを流す（sidebar.html）。右ペインはシステムが通常の記事ビューの
+       構成で 404 を報告し、その右下に殴り書きだけが明らかに異質な存在として残る。 */ -}}
+{{ define "main" }}
+{{- /* 殴り書き用フォントはこのページでしか使わないため、head ではなくここで読み込む。 */ -}}
+<link href="https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap" rel="stylesheet">
+<main class="content">
+  <article class="post">
+    <header>
+      <div class="post-meta">
+        <span class="kicker">404/</span>
+        <span>No data</span>
+      </div>
+      <h1 class="post-title">Not found</h1>
+    </header>
+    <div class="post-body">
+      <p>There is no data for the requested path.<br>Nothing has been received for this location.</p>
+      <p><a href="{{ site.Home.RelPermalink }}">← Back to the charted area</a></p>
+    </div>
+    {{- /* 書き残し。誰もいないはずの未踏区域から ping に応答が返ってきた —
+           未知の知性との遭遇を、このコンソールの語彙（通信）で。
+           バンド表示で本文の末尾に追従させるため article の中に置く。 */ -}}
+    <p class="lost-scrawl" aria-hidden="true">it answered <span class="scrawl-l2">our ping</span></p>
+  </article>
+</main>
+{{ end }}

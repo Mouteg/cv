@@ -1,0 +1,3 @@
+{{- /* body の class 決定。baseof は利用サイト側でオーバーライドされることがあるため、
+       クラスのロジックはこのパーシャルに集約して共有する。コンテキストは現在ページ。 */ -}}
+{{- if .IsHome }}layout-home{{ else }}layout-page{{ end }}{{ if eq .Kind "404" }} layout-404{{ end -}}

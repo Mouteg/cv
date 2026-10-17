@@ -1,0 +1,17 @@
+{{- /* Concat のキャッシュキーと出力内容を一致させる。
+       showCodeCopy / showShare が言語別に異なっても、異なるバンドルとして生成する。 */ -}}
+{{- $includeCopy := ne site.Params.showCodeCopy false -}}
+{{- $includeShare := eq site.Params.showShare true -}}
+{{- $variant := printf "%s-%s" (cond $includeCopy "copy" "nocopy") (cond $includeShare "share" "noshare") -}}
+{{- $sources := slice (resources.Get "js/contour.js") (resources.Get "js/main.js") (resources.Get "js/theme.js") -}}
+{{- if $includeCopy }}{{ $sources = $sources | append (resources.Get "js/copy.js") }}{{ end -}}
+{{- if $includeShare }}{{ $sources = $sources | append (resources.Get "js/share.js") }}{{ end -}}
+{{- $js := $sources | resources.Concat (printf "js/contour.bundle.%s.js" $variant) -}}
+{{- if hugo.IsProduction }}{{ $js = $js | minify | fingerprint }}{{ end -}}
+<script src="{{ $js.RelPermalink }}"{{ with $js.Data.Integrity }} integrity="{{ . }}" crossorigin="anonymous"{{ end }}></script>
+{{- /* 検索ページだけクライアント検索スクリプトを足す。 */ -}}
+{{- if eq .Layout "search" }}
+{{- $search := resources.Get "js/search.js" -}}
+{{- if hugo.IsProduction }}{{ $search = $search | minify | fingerprint }}{{ end -}}
+<script src="{{ $search.RelPermalink }}"{{ with $search.Data.Integrity }} integrity="{{ . }}" crossorigin="anonymous"{{ end }}></script>
+{{- end }}

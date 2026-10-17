@@ -1,0 +1,49 @@
+{{- /* タイトル直下の共有チップ群。site.Params.showShare = true のとき page.html が呼ぶ。
+       表示するネットワークは site.Params.shareNetworks（文字列の配列、順序どおり）で選ぶ。
+       チップは theme-toggle と同じ正方形（--toggle-size）で、中身はアイコンだけ。共有先で
+       大きさが変わらないよう、すべて 24 の viewBox を同じ辺で描く（share-icons.html）。
+       名前は aria-label と title（ツールチップ）で伝える。リンク型は素の <a> で動き、
+       操作型の 2 つ（copy = URL をクリップボードへ、native = Web Share API）は share.js が
+       担当し、非対応環境ではチップごと消える。コンテキストは現在ページ。 */ -}}
+{{- $url := .Permalink -}}
+{{- $title := .Title -}}
+{{- /* mailto は "+" をスペースへ戻さないメールクライアントがあるため %20 で送る。
+       Threads も仕様上パーセントエンコードを求めるので同様に %20 にする。 */ -}}
+{{- $mailQuery := printf "subject=%s&body=%s" (replace (urlquery $title) "+" "%20") (replace (urlquery $url) "+" "%20") -}}
+{{- $defs := dict
+     "x"          (dict "name" "X"               "href" (printf "https://x.com/intent/post?%s" (querify "text" $title "url" $url)))
+     "bluesky"    (dict "name" "Bluesky"         "href" (printf "https://bsky.app/intent/compose?%s" (querify "text" (printf "%s %s" $title $url))))
+     "mastodon"   (dict "name" "Mastodon"        "href" (printf "https://mastodonshare.com/?%s" (querify "text" $title "url" $url)))
+     "hatena"     (dict "name" "Hatena Bookmark" "href" (printf "https://b.hatena.ne.jp/entry/panel/?mode=confirm&%s" (querify "url" $url "title" $title)))
+     "hackernews" (dict "name" "Hacker News"     "href" (printf "https://news.ycombinator.com/submitlink?%s" (querify "u" $url "t" $title)))
+     "reddit"     (dict "name" "Reddit"          "href" (printf "https://www.reddit.com/submit?%s" (querify "url" $url "title" $title)))
+     "threads"    (dict "name" "Threads"         "href" (printf "https://www.threads.com/intent/post?text=%s&url=%s" (replace (urlquery $title) "+" "%20") (urlquery $url)))
+     "facebook"   (dict "name" "Facebook"        "href" (printf "https://www.facebook.com/sharer/sharer.php?%s" (querify "u" $url)))
+     "line"       (dict "name" "LINE"            "href" (printf "https://social-plugins.line.me/lineit/share?%s" (querify "url" $url "text" $title)))
+     "telegram"   (dict "name" "Telegram"        "href" (printf "https://t.me/share/url?%s" (querify "url" $url "text" $title)))
+     "whatsapp"   (dict "name" "WhatsApp"        "href" (printf "https://api.whatsapp.com/send?%s" (querify "text" (printf "%s %s" $title $url))))
+     "mail"       (dict "name" "Email"           "href" (printf "mailto:?%s" $mailQuery))
+     "copy"       (dict "name" "Copy link"       "action" "copy")
+     "native"     (dict "name" "Share"           "action" "native")
+-}}
+{{- $icons := partial "share-icons.html" . -}}
+{{- $networks := site.Params.shareNetworks | default (slice "x" "bluesky" "hackernews" "reddit" "copy" "native") -}}
+<nav class="post-share" aria-label="Share this post" data-share data-share-url="{{ $url }}" data-share-title="{{ $title }}">
+  <ul class="post-share-list">
+  {{- range $networks }}
+    {{- $key := lower . }}
+    {{- with index $defs $key }}
+    {{- $icon := printf `<svg class="share-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">%s</svg>` (index $icons $key) | safeHTML }}
+    {{- if eq .action "copy" }}
+    <li><button type="button" data-share-copy aria-label="{{ .name }}" title="{{ .name }}">{{ $icon }}<svg class="share-icon share-icon-done" viewBox="0 0 24 24" aria-hidden="true" focusable="false">{{ index $icons "done" | safeHTML }}</svg></button></li>
+    {{- else if eq .action "native" }}
+    <li><button type="button" data-share-native aria-label="{{ .name }}" title="{{ .name }}">{{ $icon }}</button></li>
+    {{- else }}
+    <li><a href="{{ .href }}" target="_blank" rel="noopener noreferrer" aria-label="Share on {{ .name }}" title="{{ .name }}">{{ $icon }}</a></li>
+    {{- end }}
+    {{- else }}
+    {{- warnf "contour: unknown share network %q in params.shareNetworks" . }}
+    {{- end }}
+  {{- end }}
+  </ul>
+</nav>

@@ -1,0 +1,26 @@
+{{- /* タクソノミー一覧ページ（例: /tags/）。全タームをチップで並べる。 */ -}}
+{{ define "main" }}
+<main class="content">
+  <div class="post">
+    <header>
+      <div class="post-meta">
+        <span class="kicker">{{ .Title }}/</span>
+        <span>{{ len .Data.Terms }} {{ .Data.Plural }}</span>
+      </div>
+      <h1 class="post-title">{{ .Title }}</h1>
+    </header>
+
+    <div class="post-body">
+      {{ with .Content }}{{ . }}{{ end }}
+    </div>
+
+    {{- /* タグチップは posts/ の記事末尾と同じ見た目（.post-tags + .kicker）に揃える。
+           .post-body の外に置くことで本文リンクの下線が乗らないようにする。 */ -}}
+    <nav class="post-tags">
+      {{- range .Data.Terms.Alphabetical }}
+      <a class="kicker" href="{{ .Page.RelPermalink }}">#{{ .Page.Title }}<span class="tag-count">{{ .Count }}</span></a>
+      {{- end }}
+    </nav>
+  </div>
+</main>
+{{ end }}

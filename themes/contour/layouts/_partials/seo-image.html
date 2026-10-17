@@ -1,0 +1,36 @@
+{{- /* OG / Twitter / JSON-LD で使う代表画像を 1 枚解決し、dict（url / width / height）を返す。
+       url が空なら画像なし。探す順は Hugo の慣習に合わせる:
+         1. front matter の images（配列。先頭を使う）/ image（文字列）
+         2. ページバンドル内の画像で名前に feature / cover / thumbnail を含むもの
+         3. site.Params.images（サイト既定。先頭を使う）
+       パスはページバンドル → グローバル assets → static/ 直配置の順で解決し、
+       実寸（width / height）が取れるときだけ返す（render-image.html と同じ流儀）。 */ -}}
+{{- $src := "" -}}
+{{- $res := "" -}}
+{{- with .Params.images }}{{ $src = cond (reflect.IsSlice .) (index . 0) . }}{{ end -}}
+{{- if not $src }}{{ with .Params.image }}{{ $src = . }}{{ end }}{{ end -}}
+{{- if and (not $src) .IsPage }}
+  {{- with (.Resources.ByType "image").GetMatch "{*feature*,*cover*,*thumbnail*}" }}{{ $res = . }}{{ end -}}
+{{- end -}}
+{{- if and (not $src) (not $res) }}
+  {{- with site.Params.images }}{{ $src = cond (reflect.IsSlice .) (index . 0) . }}{{ end -}}
+{{- end -}}
+{{- if and $src (not $res) }}
+  {{- $res = or (.Resources.Get $src) (resources.Get (strings.TrimPrefix "/" $src)) -}}
+{{- end -}}
+{{- $out := dict "url" "" "width" 0 "height" 0 -}}
+{{- with $res }}
+  {{- $out = merge $out (dict "url" .Permalink) -}}
+  {{- with try (.Width) }}{{ with .Value }}{{ $out = merge $out (dict "width" . "height" $res.Height) }}{{ end }}{{ end -}}
+{{- else }}
+  {{- with $src }}
+    {{- /* 先頭の / はサイトルート相対の意味で受けるが、absURL に / 始まりを渡すとホスト直下に
+           解決されて baseURL のサブパス（例: /contour/）が落ちる。剥がして baseURL 相対で解決する。
+           外部の絶対 URL は absURL がそのまま返す。 */ -}}
+    {{- $out = merge $out (dict "url" (absURL (strings.TrimPrefix "/" .))) -}}
+    {{- if hasPrefix . "/" }}
+      {{- with try (imageConfig (printf "static%s" .)) }}{{ with .Value }}{{ $out = merge $out (dict "width" .Width "height" .Height) }}{{ end }}{{ end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return $out -}}

@@ -1,0 +1,10 @@
+{{- /* 記事一覧（フラット・新しい順）。section / term ページで共有する。
+       コンテキストは dict "pages" <ページコレクション>。 */ -}}
+<ul class="post-list">
+  {{- range (.pages.ByDate.Reverse) }}
+  <li>
+    <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+    <span class="post-list-date">{{ .Date.Format (site.Params.dateFormat | default "2006-01-02") }}</span>
+  </li>
+  {{- end }}
+</ul>

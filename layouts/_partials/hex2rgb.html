@@ -1,0 +1,11 @@
+{{- /* "#90f205" → "144, 242, 5"。canvas 描画用の rgb 三つ組を hex から作る。
+       コンテキストは 6 桁 hex 文字列（# 有無どちらでも可）。 */ -}}
+{{- $hex := lower (strings.TrimPrefix "#" .) -}}
+{{- $val := dict "0" 0 "1" 1 "2" 2 "3" 3 "4" 4 "5" 5 "6" 6 "7" 7 "8" 8 "9" 9 "a" 10 "b" 11 "c" 12 "d" 13 "e" 14 "f" 15 -}}
+{{- $rgb := slice -}}
+{{- range $i := seq 0 2 4 -}}
+  {{- $hi := index $val (substr $hex $i 1) -}}
+  {{- $lo := index $val (substr $hex (add $i 1) 1) -}}
+  {{- $rgb = $rgb | append (add (mul $hi 16) $lo) -}}
+{{- end -}}
+{{- delimit $rgb ", " -}}

@@ -1,0 +1,13 @@
+name = "Contour"
+license = "MIT"
+licenselink = "https://github.com/mobiusone-org/hugo-contour/blob/main/LICENSE"
+description = "A stylish Hugo theme that blends contour-line motifs with typography."
+homepage = "https://github.com/mobiusone-org/hugo-contour"
+demosite = "https://mobiusone-org.github.io/hugo-contour/"
+min_version = "0.160.0"
+tags = ["minimal", "monochrome", "canvas", "blog"]
+features = ["blog", "responsive"]
+
+[author]
+  name = "118thmobius"
+  homepage = "https://mobiusone.org/"

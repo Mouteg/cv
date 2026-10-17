@@ -1,0 +1,13 @@
+{{- /* サイトロゴ（縦組みのサイト名 + kicker）。サイト名は常にトップへのリンク。
+       dict "heading" true でホーム用に <h1> で包む（SEO 上の見出し）。
+       false では通常リンク（その場合ページ本文の h1 が見出しになる）。 */ -}}
+<div class="logo-group">
+  {{- /* logoName 未設定時はサイト名 (site.Title) を使い、設定ゼロでもサイト名が出るようにする。 */ -}}
+  {{- $logoName := site.Params.logoName | default site.Title }}
+  {{- if .heading }}
+  <h1 class="site-title"><a href="{{ site.Home.RelPermalink }}">{{ $logoName }}<span class="tld">{{ site.Params.logoTLD }}</span></a></h1>
+  {{- else }}
+  <a class="site-title" href="{{ site.Home.RelPermalink }}">{{ $logoName }}<span class="tld">{{ site.Params.logoTLD }}</span></a>
+  {{- end }}
+  <span class="kicker logo-kicker">{{ site.Params.kicker }}</span>
+</div>

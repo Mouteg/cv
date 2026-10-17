@@ -1,0 +1,36 @@
+{{- /* アーカイブページ。全記事を年でグルーピングして並べる。
+       content/archives.md に `layout = "archives"` を指定して使う。 */ -}}
+{{ define "main" }}
+{{- /* 収録対象セクション。site.Params.mainSections（Hugo の慣習）に従い、
+       未設定時は posts/ にフォールバックする。 */ -}}
+{{ $mainSections := site.Params.mainSections | default (slice "posts") }}
+{{ $posts := where site.RegularPages "Section" "in" $mainSections }}
+<main class="content">
+  <div class="post">
+    <header>
+      <div class="post-meta">
+        <span class="kicker">{{ .Title }}/</span>
+        <span>{{ len $posts }} entries</span>
+      </div>
+      <h1 class="post-title">{{ .Title }}</h1>
+    </header>
+
+    <div class="post-body">
+      {{ with .Content }}{{ . }}{{ end }}
+      {{ range $posts.GroupByDate "2006" }}
+      <section class="archive-year">
+        <h2 class="archive-year-label">{{ .Key }}</h2>
+        <ul class="post-list">
+          {{ range .Pages }}
+          <li>
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            <span class="post-list-date">{{ .Date.Format "01-02" }}</span>
+          </li>
+          {{ end }}
+        </ul>
+      </section>
+      {{ end }}
+    </div>
+  </div>
+</main>
+{{ end }}

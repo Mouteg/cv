@@ -1,0 +1,649 @@
+/* Contour theme — コンテンツページ（記事）のレイアウト。
+ * 左: 前景色サイドバー（サイト名 + メニュー + 背景色の等高線）
+ * 右: 背景色の記事ペイン */
+
+body { min-height: 100vh; }
+
+:root {
+  /* 記事カラムの寸法。バンドレイアウトで操作群（site-controls）を
+     post-meta の kicker 行に揃えるため、.post と共有する。 */
+  --post-max-w: 760px;
+  --post-pad-v: clamp(48px, 10vh, 120px);
+}
+
+.sidebar-terrain {
+  position: absolute;
+}
+
+.sidebar .field-frame {
+  position: absolute;
+  --field-color: var(--bg);
+  --field-label-bg: var(--fg);
+  --coords-max: calc(var(--sidebar-w) - var(--frame-pad) - var(--frame-pad) - 32px);
+}
+
+/* サイトロゴグループはサイドバー基準で配置する。
+   tight な縦組みでも左端へインクが飛び出さないよう、コンテンツページでは少し内側へ置く。 */
+.sidebar .logo-group {
+  position: absolute;
+}
+
+/* ---- サイドメニュー（ランディングと同一コンポーネントの右合わせ・反転色版） ---- */
+.sidebar .menu {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--frame-pad) + 12px); /* 右辺に沿う縦組みの axis ラベルを避ける */
+  transform: translateY(-50%);
+  align-items: flex-end;
+}
+.sidebar .menu-list { align-items: flex-end; }
+.sidebar .menu-list a {
+  flex-direction: row-reverse; /* 右合わせなので番号をラベルの後ろに置く */
+  color: var(--bg);
+  gap: 14px;
+  padding: clamp(6px, 1vh, 12px) 12px;
+  font-size: clamp(18px, 2.8vh, 28px);
+}
+.sidebar .menu-list a i { font-size: 12px; }
+/* vh 由来の端数サイズで隣接項目の背景間にヘアラインが出ないよう 1px 重ねる */
+.sidebar .menu-list a + a { margin-top: -1px; }
+.sidebar .menu-list a:hover,
+.sidebar .menu-list a[aria-current="page"] {
+  background: var(--bg);
+  color: var(--fg);
+}
+/* ---- コンテンツペイン ---- */
+.content {
+  margin-left: var(--sidebar-w);
+}
+
+.post {
+  max-width: var(--post-max-w);
+  margin: 0 auto;
+  /* 左右 48px 以上: 固定配置のコピーライトや viewport 端と本文が詰まりすぎないようにする */
+  padding: var(--post-pad-v) clamp(48px, 5vw, 72px);
+}
+
+/* コピーライト: デスクトップでは右下に固定し、共通の縦書きを維持する。
+   中心軸を右上の切り替えボタンの中心（右端から --frame-pad + 半幅）に合わせ、縦に揃える。 */
+.copyright {
+  position: fixed;
+  right: calc(var(--frame-pad) + var(--toggle-size) / 2);
+  bottom: var(--pad);
+  transform: translateX(50%);
+  color: var(--fg);
+}
+
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.post-title {
+  margin-top: clamp(24px, 4vh, 40px);
+  font-size: clamp(30px, 4.2vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+/* ---- 記事本文 ---- */
+.post-body {
+  margin-top: clamp(40px, 7vh, 72px);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.95;
+}
+.post-body p { margin-bottom: 1.7em; }
+
+/* 画像は本文カラム幅に収める（レスポンシブイメージの標準形）。
+   width/height 属性や固有サイズがカラムより大きくても縦横比を保って縮む。 */
+.post-body img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---- 図版（plate）----
+   Markdown 画像は render-image フックで .plate に包まれ、四隅に L 字の角マークを打つ。
+   角マークは等高線フレームの + マーク（.mark: 16px / 1px / currentColor）と同じ
+   部材で、+ のうち画像側を向く 2 本の腕だけを残した形。罫線は引かない。 */
+.plate {
+  display: block;
+  margin: 2.6em 0;
+  text-align: center;
+}
+.plate-frame {
+  --plate-inset: 14px;  /* 角マークから画像までの余白 */
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  padding: var(--plate-inset);
+  line-height: 0;
+  color: var(--fg);
+}
+.plate-frame img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+.plate-frame .mark {
+  position: absolute;
+  border: 0 solid currentColor;
+}
+.plate-frame .mark::before, .plate-frame .mark::after { content: none; }
+.plate-frame .mark.tl { top: 0;    left: 0;  border-width: 1px 0 0 1px; }
+.plate-frame .mark.tr { top: 0;    right: 0; border-width: 1px 1px 0 0; }
+.plate-frame .mark.bl { bottom: 0; left: 0;  border-width: 0 0 1px 1px; }
+.plate-frame .mark.br { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+.plate-caption {
+  display: flex;
+  margin-top: 18px;
+  line-height: 1.6;
+  max-inline-size: none;
+  white-space: normal;
+  opacity: 0.8;
+}
+
+/* ---- 見出し ----
+   レベルを問わず同じ書体（太字・大文字・広い字間）で、大きさだけ段階を付ける。
+   余白は em 指定なので、小さい見出しほど自動的に詰まる。 */
+.post-body :is(h2, h3, h4, h5, h6) {
+  margin: 3em 0 1.4em;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.post-body h3 { font-size: 17px; }
+.post-body :is(h4, h5, h6) { font-size: 15px; }
+
+.post-body a {
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+.post-body a:hover { text-decoration: none; }
+
+/* ---- 見出しのアンカーリンク ----
+   render-heading.html が各見出しの末尾に置く「#」。ベースラインに揃えて常時表示し、細字と
+   不透明度 0.6 で見出し本文より一段引いた印としておく。ホバー/フォーカスで不透明にするだけで、
+   動きは付けない。大きさは見出しと同じを基本にし、h2（19px）だけ 0.8 倍に落とす。h3 以下で
+   0.8 倍にすると本文（15px）より小さくなり、印として弱すぎるため。
+   .post-body a の下線より優先させるため .post-body 付きで書く。 */
+.post-body .heading-anchor {
+  margin-left: 0.5em;
+  font-weight: 300;
+  vertical-align: baseline;
+  text-decoration: none;
+  opacity: 0.6;
+}
+.post-body h2 .heading-anchor { font-size: 0.8em; }
+.post-body .heading-anchor:hover,
+.post-body .heading-anchor:focus-visible { opacity: 1; }
+
+.post-body ul, .post-body ol {
+  margin: 0 0 1.7em 1.4em;
+}
+.post-body li { margin-bottom: 0.5em; }
+
+.post-body code {
+  font-size: 13px;
+  border: 1px solid rgba(var(--fg-rgb), 0.35);
+  padding: 1px 7px;
+}
+.post-body pre {
+  margin: 0 0 1.7em;
+  padding: 22px 24px;
+  border: 1px solid rgba(var(--fg-rgb), 0.35);
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.post-body pre code {
+  border: none;
+  padding: 0;
+}
+
+/* ---- コードコピーボタン（copy.js が挿入する） ----
+   ブロックの右上角に重ね、メニューと同じ xx/ 形式のラベルで表示する。
+   ホバーで前景/背景を反転（サイト共通のインタラクションに倣う）。 */
+.post-body .highlight,
+.post-body pre {
+  position: relative;
+}
+.code-copy {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 4px 10px;
+  border: none;
+  border-left: 1px solid rgba(var(--fg-rgb), 0.35);
+  border-bottom: 1px solid rgba(var(--fg-rgb), 0.35);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.code-copy:hover { background: var(--fg); color: var(--bg); }
+.code-copy:focus-visible { outline: 1px solid currentColor; outline-offset: -4px; }
+
+.post-body blockquote {
+  margin: 0 0 1.7em;
+  padding-left: 22px;
+  border-left: 2px solid var(--fg);
+  font-style: italic;
+  font-weight: 300;
+  opacity: 0.85;
+}
+
+.post-body hr {
+  border: 0;
+  border-top: 1px dashed rgba(var(--fg-rgb), 0.4);
+  margin: 3em 0;
+}
+
+/* ---- 記事一覧（セクションページ） ---- */
+.post-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.post-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(var(--fg-rgb), 0.4);
+}
+.post-list a {
+  color: var(--fg);
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.post-list-date {
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  opacity: 0.7;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- タグチップ内の件数（記事末尾 posts/ とタグ一覧 tags/ で共通） ---- */
+.tag-count {
+  margin-left: 0.7em;
+  font-weight: 300;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 検索 ---- */
+.search-form { margin-bottom: clamp(32px, 5vh, 56px); }
+.search-input {
+  width: 100%;
+  padding: 14px 18px;
+  background: transparent;
+  border: 1px solid rgba(var(--fg-rgb), 0.4);
+  color: var(--fg);
+  font: inherit;
+  font-size: 16px;
+}
+.search-input:focus { outline: none; border-color: var(--fg); }
+.search-input::placeholder { color: var(--fg); opacity: 0.4; }
+
+/* ---- アーカイブ（年ごと） ---- */
+.archive-year { margin-bottom: clamp(28px, 5vh, 48px); }
+.archive-year-label {
+  margin: 0 0 0.6em;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- タグ・前後記事ナビ・フッター ---- */
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: clamp(40px, 7vh, 72px);
+}
+.post-tags a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+/* ---- 共有チップ（share.html） ----
+   タイトル直下に正方形のアイコンチップを並べる。チップは右上の操作群（theme-toggle /
+   lang-switch）と同じ寸法（--toggle-size）・1px ボーダーで、共有先に関わらず同じ大きさ。
+   アイコンは 24 の viewBox を同じ辺で描き、currentColor で塗るのでホバーの前景/背景反転
+   （サイト共通）にそのまま追従する。見出しは付けず、共有先の名前は title / aria-label で伝える。 */
+.post-share {
+  margin-top: clamp(20px, 3vh, 28px);
+}
+.post-share-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.post-share-list a,
+.post-share-list button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--toggle-size);
+  height: var(--toggle-size);
+  padding: 0;
+  border: 1px solid currentColor;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.post-share-list a:hover,
+.post-share-list button:hover,
+.post-share-list button.is-copied {
+  background: var(--fg);
+  color: var(--bg);
+}
+.post-share-list a:focus-visible,
+.post-share-list button:focus-visible { outline: 1px solid currentColor; outline-offset: 3px; }
+.share-icon {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+/* コピー完了: アイコンをチェック印に差し替え、1.5 秒だけ反転表示する（share.js） */
+.share-icon-done { display: none; }
+.is-copied .share-icon { display: none; }
+.is-copied .share-icon-done { display: block; }
+
+.post-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: clamp(32px, 5vh, 56px);
+  padding-top: 24px;
+  border-top: 1px solid rgba(var(--fg-rgb), 0.4);
+}
+.post-nav a {
+  color: var(--fg);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+}
+.post-nav .next { text-align: right; }
+
+/* ---- 404（未踏区画） ----
+   地図データが届かないまま、それ以外は正常に動いているコンソールの演出。
+   サイドバーは等高線の代わりに、読み込み前プレースホルダーの + ラティスを
+   通常ページと同じ canvas に描く（sidebar.html / contour.js の lattice モード。
+   端点がフレームの + マーク（--frame-pad）と一致するので座標系がつながる）。
+   計測ラベル（axis / coords）は通常ページの位置・書式のまま、接続エラーの
+   表示に転用される。
+   右ペインは通常の記事ビュー構成で 404 を報告し、右下の殴り書きだけが異質に残る。 */
+
+/* ラティス自体は canvas が描くので、ここでは読み込み待ちの明滅だけ与える。 */
+.layout-404 .sidebar-terrain {
+  animation: grid-breathe 6s ease-in-out infinite;
+}
+
+/* coords 転用時の点滅カーソル（sidebar.html が coords の差し替え文字列に埋め込む）。
+   フォントのグリフ幅に依存しないよう、文字ではなく CSS のボックスで描く。
+   直前の文字との間隔は親の letter-spacing がそのまま効く。 */
+.lost-cursor {
+  display: inline-block;
+  /* 物理 width / height だと縦書き（バンドの coords ラベル）でカーソルの向きが
+     90° ずれるため、書字方向に追従する論理プロパティで描く。 */
+  inline-size: 0.55em;
+  block-size: 1em;
+  background: currentColor;
+  vertical-align: text-bottom;
+  animation: cursor-blink 1.1s steps(1, end) infinite;
+}
+
+/* 殴り書き。記事ビューが正常に描画される中で、これだけが異質な存在として
+   画面の右下に残る。右端に固定のコピーライト（縦書き）とは列を分けて距離をとる。
+   装飾なので操作は素通しにする。 */
+.lost-scrawl {
+  position: fixed;
+  /* 回転で右上が箱から約 1.5em はみ出すので、その分を含めてコピーライトの列
+     （右端から --frame-pad + 十数 px）から十分に離す。 */
+  right: clamp(96px, 7.5vw, 140px);
+  bottom: clamp(64px, 12vh, 140px);
+  z-index: 5;
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: "Rock Salt", cursive;
+  font-size: clamp(24px, 3.25vw, 55px);
+  font-weight: 400;
+  line-height: 1.6;
+  transform: rotate(-30deg);
+  /* 二重写しのゴーストで信号の乱れを示す */
+  text-shadow: 0.06em 0.04em 0 rgba(var(--fg-rgb), 0.22);
+  animation: scrawl-in 2.4s steps(1, end) both;
+}
+/* 2 行折り。横に長く流さず、塊として置く。 */
+.lost-scrawl .scrawl-l2 { display: block; }
+
+/* 唐突さ: フェードではなく steps で点滅させ、走り書きが「現れてしまった」ように見せる */
+@keyframes scrawl-in {
+  0%, 42% { opacity: 0; }
+  46% { opacity: 1; }
+  54% { opacity: 0; }
+  62% { opacity: 1; }
+  68% { opacity: 0.25; }
+  74%, 100% { opacity: 1; }
+}
+@keyframes grid-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lost-scrawl, .lost-cursor, .layout-404 .sidebar-terrain { animation: none; }
+}
+
+/* ---- 狭い・縦長のビューポート: サイドバーを上部バンドに ----
+   大画面の「縦組みサイト名 / 横並びメニュー」を解消し、
+   タイトル・メニューともにヘッダー内で上下中央揃えにし、
+   非常に小さなデバイスからタブレット程度まで一貫したスタイルを提供する。 */
+@media (max-width: 960px), (max-aspect-ratio: 1/1) {
+  /* 外側の + 枠を加えても枠内寸法が従来（232px）のまま保たれるバンド高。
+     .sidebar の高さと切り替えボタンの退避位置で共用する。 */
+  :root { --band-h: 304px; }
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: var(--band-h);
+    container-type: size;
+  }
+  .content { margin-left: 0; }
+  /* 操作群は post-meta の kicker 行に統合する:
+     「POSTS/ …（空白）… EN/ ◐」を 1 行に、日付・読了時間は次の行へ。
+     画面（ビューポート）固定だと記事スクロール時に本文へ重なるため、ページ（ドキュメント）に
+     対する絶対配置にし、記事と一緒にスクロールさせる。縦位置は .post の上パディングと
+     同じ式で kicker 行に揃え、横位置は記事カラムの右端に揃える。
+     row-reverse により DOM 順は変えずトグルが最右＝角のアンカーに残る。 */
+  .site-controls {
+    position: absolute;
+    top: calc(var(--band-h) + var(--post-pad-v));
+    right: max(24px, (100% - var(--post-max-w)) / 2 + 24px);
+    flex-direction: row-reverse;
+  }
+  .lang-switch { flex-direction: row-reverse; }
+  .post { padding-left: 24px; padding-right: 24px; }
+  /* post-meta は 2 行のグリッドにする: 1 行目 = kicker（右側は操作群のオーバーレイ）、
+     2 行目 = 日付・読了時間など。kicker は操作群のチップと同じ高さ（--toggle-size）に
+     揃え、行内の四角の高さを一致させる。 */
+  .post-meta {
+    display: grid;
+    grid-template-columns: max-content max-content 1fr;
+    gap: 14px 18px;
+  }
+  .post-meta .kicker {
+    grid-column: 1 / -1;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    height: var(--toggle-size);
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  /* 検索ページの件数など、中身が空のメタ項目は行ごと消す（空行の row-gap を避ける） */
+  .post-meta span:empty { display: none; }
+  /* レイアウト（静的配置・右寄せ）だけ変え、書体はトップページと同じ共通スタイル
+     （16px・letter-spacing 0.2em）を継承して見た目を揃える。 */
+  .copyright {
+    display: block;
+    position: static;
+    width: max-content;
+    margin: 0 24px 24px auto;
+    padding: 0;
+    transform: none; /* バンドレイアウトでは静的配置に戻すため中央寄せのずらしを解除 */
+  }
+
+  /* + マークの外側余白は var(--frame-pad) のまま。バンドでも同じ値を共有する。 */
+
+  /* サイト名 + kicker: 縦書きにして左側上下中央へ */
+  .sidebar .logo-group {
+    position: absolute;
+    /* 四隅の + マーク（中心 --frame-pad、腕 ±8px）に文字がめり込まないよう、
+       腕の外端からさらに 8px 離す。 */
+    left: calc(var(--frame-pad) + 16px);
+    top: 50%;
+    transform: translateY(-50%);
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .sidebar .site-title {
+    writing-mode: vertical-rl;
+    white-space: nowrap; /* 1 列で +枠の縦幅いっぱいに収める（.org が折り返さないように） */
+    font-size: 9cqh;
+    line-height: 0.6;
+  }
+  /* kicker は装飾用のバッジ。モバイルでも縦組みロゴの一部として 1 列を保ち、
+     折り返しでブランドのシルエットが崩れないよう字間と余白を詰める。 */
+  .sidebar .logo-kicker {
+    display: block;
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+    max-height: none;
+    font-size: clamp(8px, 2.65cqh, 10px);
+    /* 縦の全長を +枠の内寸（100cqh - frame-pad×2）以下に収める。
+       はみ出すとロゴ群の上下中央寄せが枠外へ押し出されるため、
+       字間と上下パディングをデスクトップよりわずかに詰める。 */
+    letter-spacing: 0.06em;
+    padding: min(2cqh, 4px) 3px;
+    line-height: 1.3;
+  }
+
+  /* elevation (axis): 横書きにして下部中央へ（デスクトップ用の座標設定をリセット） */
+  .sidebar .axis {
+    display: flex;
+    position: absolute;
+    top: auto;
+    right: auto;
+    left: 50%;
+    bottom: var(--frame-pad); /* 下辺の + マークと同一線上 */
+    transform: translate(-50%, 50%);
+    writing-mode: horizontal-tb;
+    background: var(--fg);
+    padding: 2px 8px;
+    font-size: 8px;
+  }
+  /* バンドでも罫線（棒）は固定で消さず、共通の幅追従ロジックに任せる。
+     axis は横組みなので max-inline-size は components のフレーム幅計算に任せる。 */
+
+  /* 座標 (coords): 縦書きにして右端中央へ（デスクトップ用の座標設定をリセット）。
+     枠の高さはバンド高なので、棒の上限をバンド高基準で与える。 */
+  .sidebar .coords {
+    position: absolute;
+    left: auto;
+    bottom: auto;
+    right: var(--frame-pad); /* 右辺の + マークと同一線上 */
+    top: 50%;
+    transform: translate(50%, -50%);
+    writing-mode: vertical-rl;
+    background: var(--fg);
+    padding: 8px 2px;
+    opacity: 0.9;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    max-inline-size: calc(100cqh - var(--frame-pad) - var(--frame-pad) - 32px);
+  }
+
+  /* メニュー: 右寄せ・縦並びにして右側上下中央へ配置する（座標ラベルを避けるため左に寄せる） */
+  .sidebar .menu {
+    position: absolute;
+    top: 50%;
+    bottom: auto;
+    left: auto;
+    right: 54px;
+    transform: translateY(-50%);
+    align-items: flex-end;
+  }
+  .sidebar .menu-list {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .sidebar .menu-list a {
+    writing-mode: horizontal-tb;
+    flex-direction: row-reverse; /* 文字を左、番号を右に並べる */
+    align-items: center;
+    gap: 14px;
+    padding: 8px 12px;
+    font-size: 16px;
+  }
+  .sidebar .menu-list a + a { margin-top: -1px; }
+
+  /* 404 の殴り書き: 書体・傾き・2 行折りはデスクトップと共用し、デスクトップと同じく
+     コピーライトの左隣に置く。band ではコピーライトが静的配置（.content の直後、右寄せ
+     の縦書き）なので、.content を基準にその直下＝コピーライトの高さ範囲に absolute で
+     並べる。fixed にしないのは、スクロールで残存して本文に重なるのを避けるため。
+     サイズは幅に追従させ、狭い端末でも左端からはみ出さないようにする
+     （bbox 幅 ≒ 7.8em。right + 7.8em が幅を超えない範囲）。 */
+  .layout-404 .content { position: relative; }
+  .lost-scrawl {
+    position: absolute;
+    top: calc(100% + 8px);
+    bottom: auto; /* 大画面用の bottom と併存すると高さが潰れる */
+    right: 72px;
+    font-size: clamp(26px, 9.4vw, 40px);
+  }
+  /* 404 は本文が短く、静的配置のコピーライトがバンド直下まで浮き上がってしまう。
+     コンテンツ領域に残りビューポートぶんの高さを与え、通常ページと同じ最下部に保つ。 */
+  .layout-404 .content {
+    min-height: calc(100vh - var(--band-h) - 96px);
+  }
+}
+}

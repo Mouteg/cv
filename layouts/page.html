@@ -1,0 +1,40 @@
+{{ define "main" }}
+<main class="content">
+  <article class="post">
+    <header>
+      {{- /* kicker は所属セクション名（例: posts/）。ルート直下ページ（profile 等）は
+             セクションが無いのでページ自身のタイトルを使う（archives/search と同じ流儀）。
+             日付は設定されているときだけ出す。読了時間は本文長から自動算出。 */ -}}
+      <div class="post-meta">
+        <span class="kicker">{{ if .Section }}{{ .CurrentSection.Title }}{{ else }}{{ .Title }}{{ end }}/</span>
+        {{ if not .Date.IsZero }}<span>{{ .Date.Format (site.Params.dateFormat | default "2006-01-02") }}</span>{{ end }}
+        <span>Read — {{ .ReadingTime }} min</span>
+      </div>
+      <h1 class="post-title">{{ .Title }}</h1>
+      {{- /* 共有チップはタイトル直下。サイト設定 showShare で全体を、front matter の share で
+             個別に切り替える（share = false で非表示、ルート直下ページは share = true で表示）。 */ -}}
+      {{ $share := .Params.share }}
+      {{ if and site.Params.showShare (ne $share false) (or .Section $share) }}
+      {{ partial "share.html" . }}
+      {{ end }}
+    </header>
+
+    <div class="post-body">
+      {{ .Content }}
+    </div>
+
+    {{ with .GetTerms "tags" }}
+    <nav class="post-tags">
+      {{ range . }}<a class="kicker" href="{{ .RelPermalink }}">#{{ .LinkTitle }}<span class="tag-count">{{ len .Pages }}</span></a>{{ end }}
+    </nav>
+    {{ end }}
+
+    {{ if and .Section (or .PrevInSection .NextInSection) }}
+    <nav class="post-nav">
+      {{ with .PrevInSection }}<a class="prev" href="{{ .RelPermalink }}">← Prev — {{ .Title }}</a>{{ else }}<span></span>{{ end }}
+      {{ with .NextInSection }}<a class="next" href="{{ .RelPermalink }}">Next — {{ .Title }} →</a>{{ else }}<span></span>{{ end }}
+    </nav>
+    {{ end }}
+  </article>
+</main>
+{{ end }}

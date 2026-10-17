@@ -1,0 +1,7 @@
+{{- /* メインメニュー。コンテキストには現在ページを渡す（aria-current 判定に使う）。 */ -}}
+{{- $page := . -}}
+<nav class="menu-list">
+  {{- range $i, $entry := site.Menus.main }}
+  <a href="{{ .URL }}"{{ if or ($page.IsMenuCurrent "main" .) ($page.HasMenuCurrent "main" .) }} aria-current="page"{{ end }}><i>{{ printf "%02d" (add $i 1) }}</i>{{ .Name }}/</a>
+  {{- end }}
+</nav>

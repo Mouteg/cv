@@ -1,0 +1,67 @@
+/* Contour theme — ランディングページのレイアウト。 */
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+.page-terrain {
+  position: fixed;
+}
+
+/* 左1/PIの前景色パネル */
+.home-panel .copyright {
+  position: absolute;
+  right: var(--pad);
+  bottom: var(--pad);
+}
+
+/* 右ペイン右上の + マークは切り替えボタンが占めるため非表示にする
+   （ボタンの右上角がこのマークの中心位置に重なる）。 */
+.home-field .mark.tr { display: none; }
+
+.home-field {
+  --frame-left: calc(var(--sidebar-w) + var(--frame-pad));
+  --coords-left: calc(var(--sidebar-w) + (100vw - var(--sidebar-w)) / 2);
+  --coords-max: calc(100vw - var(--sidebar-w) - var(--frame-pad) - var(--frame-pad) - 32px);
+}
+
+.home-menu-frame {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--pad);
+  padding-left: calc(var(--sidebar-w) + var(--pad));
+  pointer-events: none;
+}
+.home-menu-frame a, .home-menu-frame button { pointer-events: auto; }
+
+@media (max-width: 720px) {
+  .site-title { font-size: min(11vw, 9vh); }
+  .home-field .axis, .home-field .coords { display: none; }
+  /* 狭幅では操作群を右上の角から左へ横並びにする（縦積みだと右端だけ縦に重くなる）。
+     row-reverse により DOM 順は変えずトグルが最右＝角のアンカーに残る。 */
+  .site-controls, .lang-switch { flex-direction: row-reverse; }
+  .home-menu-frame {
+    padding-right: var(--frame-pad);
+    padding-left: calc(var(--sidebar-w) + var(--frame-pad));
+  }
+  .menu-list {
+    container-type: inline-size;
+    inline-size: calc(100vw - var(--sidebar-w) - var(--frame-pad) - var(--frame-pad));
+    max-inline-size: calc(100vw - var(--sidebar-w) - var(--frame-pad) - var(--frame-pad));
+  }
+  .menu-list a {
+    max-inline-size: 100%;
+    gap: 0.34em;
+    padding-inline: 0.24em;
+    font-size: clamp(14px, min(5vh, 15.6cqw), 44px);
+    letter-spacing: 0;
+  }
+  .menu-list a i {
+    font-size: 0.36em;
+    letter-spacing: 0.14em;
+  }
+}

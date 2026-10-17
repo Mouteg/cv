@@ -1,0 +1,15 @@
+{{- /* 検索インデックス (/index.json)。site.Params.mainSections の記事のみを収録する。
+       未設定時は posts/ にフォールバックする。 */ -}}
+{{- $index := slice -}}
+{{- $mainSections := site.Params.mainSections | default (slice "posts") -}}
+{{- range (where site.RegularPages "Section" "in" $mainSections) -}}
+  {{- $index = $index | append (dict
+      "title" .Title
+      "url" .RelPermalink
+      "date" (.Date.Format (site.Params.dateFormat | default "2006-01-02"))
+      "tags" (.Params.tags | default slice)
+      "summary" (.Summary | plainify)
+      "content" .Plain
+  ) -}}
+{{- end -}}
+{{- $index | jsonify -}}

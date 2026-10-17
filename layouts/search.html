@@ -1,0 +1,25 @@
+{{- /* 検索ページ。/index.json を取得し、依存ライブラリ無しでクライアント側検索する。
+       content/search.md に `layout = "search"` を指定して使う。
+       検索スクリプトは search ページのときだけ scripts.html が読み込む。 */ -}}
+{{ define "main" }}
+<main class="content">
+  <div class="post">
+    <header>
+      <div class="post-meta">
+        <span class="kicker">{{ .Title }}/</span>
+        <span id="search-count"></span>
+      </div>
+      <h1 class="post-title">{{ .Title }}</h1>
+    </header>
+
+    <div class="post-body">
+      <form class="search-form" role="search" onsubmit="return false">
+        <input type="search" id="search-input" class="search-input"
+               placeholder="Search posts…" autocomplete="off" autofocus
+               aria-label="Search posts" data-index="{{ "index.json" | relLangURL }}">
+      </form>
+      <ul class="post-list" id="search-results"></ul>
+    </div>
+  </div>
+</main>
+{{ end }}

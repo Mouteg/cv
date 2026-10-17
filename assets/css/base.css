@@ -1,0 +1,43 @@
+/* Contour theme — デザイントークンとリセット。全ページ共通。 */
+:root {
+  /* テーマの素となる二色。hugo.toml の params.fg / params.bg で上書き可（head.html が :root を出す）。
+     モノクロのテーマなので、ライト/ダークの切り替えはこの二色を入れ替えるだけで成立する。
+     実際に各所で使う --fg / --bg / *-rgb は data-theme に応じて下でこの二色から割り当てる。 */
+  --fg-src: #90f205;
+  --bg-src: #0a0101;
+  --fg-src-rgb: 144, 242, 5;  /* canvas 描画用。--fg-src / --bg-src と必ず一致させる */
+  --bg-src-rgb: 10, 1, 1;
+  --pad: clamp(20px, 3vw, 44px);
+  --sidebar-w: 31.4159vw;
+  --frame-pad: 36px;
+  --toggle-size: 34px;  /* テーマ切り替えボタンの一辺。コピーライトの縦位置合わせでも使う */
+  --logo-left: clamp(16px, 2vw, 36px);
+  --panel-logo-left: clamp(36px, 2.8vw, 52px);
+}
+
+/* ダーク（既定）: 素の色をそのまま使う。data-theme 未設定でも同じ見た目になる。 */
+:root,
+:root[data-theme="dark"] {
+  --fg: var(--fg-src);
+  --bg: var(--bg-src);
+  --fg-rgb: var(--fg-src-rgb);
+  --bg-rgb: var(--bg-src-rgb);
+}
+
+/* ライト: 前景色と背景色を入れ替えるだけ。 */
+:root[data-theme="light"] {
+  --fg: var(--bg-src);
+  --bg: var(--fg-src);
+  --fg-rgb: var(--bg-src-rgb);
+  --bg-rgb: var(--fg-src-rgb);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "IBM Plex Mono", "SF Mono", Menlo, monospace;
+}
+
+::selection { background: var(--fg); color: var(--bg); }

@@ -1,0 +1,21 @@
+{{ define "main" }}
+{{ partial "contour-canvas.html" (dict "id" "terrain" "class" "page-terrain" "frame" "home") }}
+
+<aside class="site-panel home-panel">
+  {{ partial "copyright.html" . }}
+</aside>
+
+{{ partial "field-frame.html" (dict "class" "home-field" "frame" "home") }}
+
+{{- /* 操作群（テーマ切り替え + 言語）は右ペイン（等高線エリア）の右上。
+       コンテンツページと同じ位置に揃える。 */ -}}
+{{ partial "site-controls.html" . }}
+
+<div class="home-menu-frame">
+  <main class="menu">
+    {{ partial "menu.html" . }}
+  </main>
+</div>
+
+{{ partial "logo.html" (dict "heading" true) }}
+{{ end }}

@@ -1,0 +1,55 @@
+name: Deploy exampleSite to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時実行は1つに絞る。進行中のデプロイはキャンセルしない。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.163.2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # テーマ名（contour）と同じフォルダ名にチェックアウト。
+          path: contour
+          fetch-depth: 0  # .GitInfo / .Lastmod 用に全履歴を取得
+      - name: Install Hugo (extended)
+        run: |
+          wget -O hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb
+          sudo dpkg -i hugo.deb
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Build
+        run: |
+          hugo --source contour/exampleSite --themesDir ../.. \
+            --gc --minify \
+            --baseURL "${{ steps.pages.outputs.base_url }}/"
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./contour/exampleSite/public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,11 @@
+{{- /* 言語スイッチャー。翻訳版が存在するページだけ、他言語版へのリンクを
+       メニューと同じ xx/ 形式で出す。単一言語サイトでは何も出力しない。
+       site-controls.html から呼ばれ、テーマ切り替えボタンの下に積まれる。
+       コンテキストは現在ページ。 */ -}}
+{{- if .IsTranslated }}
+<nav class="lang-switch" aria-label="Languages">
+  {{- range .Translations }}
+  <a href="{{ .RelPermalink }}" lang="{{ .Language.Lang }}" hreflang="{{ .Language.Lang }}">{{ .Language.Lang }}/</a>
+  {{- end }}
+</nav>
+{{- end }}

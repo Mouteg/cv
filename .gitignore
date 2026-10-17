@@ -1,0 +1,22 @@
+# Hugo build artifacts
+/public/
+/exampleSite/public/
+/resources/_gen/
+/exampleSite/resources/_gen/
+.hugo_build.lock
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Logs / temp
+*.log
+*.tmp

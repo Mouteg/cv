@@ -1,0 +1,3 @@
+[submodule "themes/contour"]
+	path = themes/contour
+	url = https://github.com/mobiusone-org/hugo-contour.git

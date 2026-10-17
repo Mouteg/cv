@@ -1,0 +1,33 @@
+{{- /* 本文中の画像は「図版（plate）」として、等高線フレームと同じ部材の L 字マークで四隅を囲む。
+       画像は段落（<p>）内に現れるため、ブロックの <figure> ではなく span を組んで
+       HTML を壊さない（CSS で block にする）。title があれば計測ラベル（.coords）と
+       同じ体裁のキャプションを添える。
+
+       src はまずページバンドル（PageInner: shortcode / include 経由でも正しい側を見る）、
+       次にグローバル assets から解決し、見つかればその公開 URL と実寸を使う。
+       どちらにも無い絶対パスは static/ 直配置とみなして imageConfig で実寸だけ拾う。
+       実寸（width/height）はレイアウトシフト対策で、取れないとき（リモート URL や
+       SVG など）は属性を出さない。 */ -}}
+{{- $dest := .Destination -}}
+{{- $w := 0 -}}
+{{- $h := 0 -}}
+{{- $r := or ((.PageInner | default .Page).Resources.Get (strings.TrimPrefix "./" $dest)) (resources.Get (strings.TrimPrefix "/" $dest)) -}}
+{{- with $r -}}
+  {{- $dest = .RelPermalink -}}
+  {{- with try (.Width) -}}
+    {{- with .Value -}}{{- $w = . -}}{{- $h = $r.Height -}}{{- end -}}
+  {{- end -}}
+{{- else -}}
+  {{- if hasPrefix $dest "/" -}}
+    {{- with try (imageConfig (printf "static%s" $dest)) -}}
+      {{- with .Value -}}{{- $w = .Width -}}{{- $h = .Height -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+<span class="plate" role="figure"{{ with .Title }} aria-label="{{ . }}"{{ end }}>
+  <span class="plate-frame">
+    {{ partial "marks.html" . }}
+    <img src="{{ $dest | safeURL }}" alt="{{ .PlainText }}"{{ if $w }} width="{{ $w }}" height="{{ $h }}"{{ end }} loading="lazy" decoding="async">
+  </span>
+  {{- with .Title }}<span class="plate-caption coords">{{ . }}</span>{{ end }}
+</span>

@@ -1,0 +1,2 @@
+{{- /* 等高線 canvas。class / id / data 属性は呼び出し側から渡す。 */ -}}
+<canvas{{ with .id }} id="{{ . }}"{{ end }} class="contour-canvas{{ with .class }} {{ . }}{{ end }}" data-contour{{ with .frame }} data-contour-frame="{{ . }}"{{ end }}{{ with .color }} data-color="{{ . }}"{{ end }}{{ with .cell }} data-cell="{{ . }}"{{ end }}{{ with .lattice }} data-lattice="{{ . }}"{{ end }}></canvas>

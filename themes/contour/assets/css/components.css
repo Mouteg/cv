@@ -1,0 +1,322 @@
+/* Contour theme — 共通コンポーネント。ページ固有の座標は CSS 変数で差し替える。 */
+
+/* ---- 左の色面（ホームのパネル / コンテンツページのサイドバー） ---- */
+.site-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  overflow: hidden;
+  background: var(--fg);
+  color: var(--bg);
+}
+
+/* ---- 右上のサイト操作群（テーマ切り替え + 言語スイッチャー） ----
+   全ページ共通で右ペイン（背景色エリア）の右上に固定し、ページ間で位置が動かないようにする。
+   その右上角を + マークの中心（top / right とも --frame-pad）に合わせて、フレームの語彙に馴染ませる。
+   トグルを先頭に、言語リンクを同サイズの正方形チップとして真下へ積む。 */
+.site-controls {
+  position: fixed;
+  top: var(--frame-pad);
+  right: var(--frame-pad);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 30;
+}
+
+/* ---- ライト/ダーク切り替えボタン ----
+   正方形・1px ボーダーの最小限の佇まいで、配色は currentColor 追従。
+   ホバーで前景/背景を反転（サイト共通のインタラクションに倣う）。 */
+.theme-toggle {
+  width: var(--toggle-size);
+  height: var(--toggle-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid currentColor;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.theme-toggle:hover { background: var(--fg); color: var(--bg); }
+.theme-toggle:focus-visible { outline: 1px solid currentColor; outline-offset: 3px; }
+.theme-toggle-icon { display: block; width: 16px; height: 16px; }
+
+/* ---- 等高線 canvas ---- */
+.contour-canvas {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+}
+
+/* ---- コピーライト ---- */
+.copyright {
+  writing-mode: vertical-rl;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+.site-panel .copyright { color: var(--bg); }
+
+/* ---- 等高線表示領域のフレーム ---- */
+.field-frame {
+  position: fixed;
+  inset: 0;
+  color: var(--field-color, var(--fg));
+  pointer-events: none;
+}
+
+/* ---- + マーク（地図の表示領域を示す）。色は currentColor ---- */
+.mark {
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  color: inherit;
+}
+.field-frame .mark {
+  position: absolute;
+}
+.mark::before, .mark::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.mark::before { /* horizontal */
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+.mark::after { /* vertical */
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 1px;
+}
+.field-frame .mark.tl {
+  top: var(--frame-pad);
+  left: var(--frame-left, var(--frame-pad));
+  transform: translate(-50%, -50%);
+}
+.field-frame .mark.tr {
+  top: var(--frame-pad);
+  right: var(--frame-right, var(--frame-pad));
+  transform: translate(50%, -50%);
+}
+.field-frame .mark.bl {
+  bottom: var(--frame-pad);
+  left: var(--frame-left, var(--frame-pad));
+  transform: translate(-50%, 50%);
+}
+.field-frame .mark.br {
+  right: var(--frame-right, var(--frame-pad));
+  bottom: var(--frame-pad);
+  transform: translate(50%, 50%);
+}
+
+/* ---- ラベルチップ ---- */
+.kicker {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid var(--fg);
+  background: var(--bg);
+  padding: 9px 6px;
+}
+
+/* ---- メインメニュー（kicker + リンク群）。配置と配色の反転は各ページ CSS が持つ ---- */
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(24px, 4vh, 40px);
+}
+.menu-list {
+  display: flex;
+  flex-direction: column;
+}
+.menu-list a {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding: clamp(8px, 1.4vh, 16px) 14px;
+  color: var(--fg);
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: clamp(34px, 6.5vh, 68px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.menu-list a i {
+  font-style: normal;
+  font-size: 16px;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  opacity: 0.6;
+}
+.menu-list a:hover i { opacity: 1; }
+
+/* ---- 言語スイッチャー（翻訳があるページのみ lang-switch.html が出力） ----
+   テーマ切り替えボタンと同じ正方形・1px ボーダーのチップとして、その真下に積む。
+   字面は計測ラベル（axis/coords）と同じ 11px・uppercase で、フレームの語彙に揃える。 */
+.lang-switch {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lang-switch a {
+  width: var(--toggle-size);
+  height: var(--toggle-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+  background: var(--bg);
+  color: var(--fg);
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  /* letter-spacing は末尾にも付くため、その分を左に足して視覚的にセンタリングする */
+  padding-left: 0.12em;
+  transition: background .2s, color .2s;
+}
+.lang-switch a:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+.lang-switch a:focus-visible { outline: 1px solid currentColor; outline-offset: 3px; }
+
+/* ---- 共通インタラクション: ホバーで前景/背景を反転（サイト全体で使う） ---- */
+.menu-list a,
+.term,
+.post-tags a,
+.post-nav a {
+  transition: background .2s, color .2s;
+}
+.menu-list a:hover,
+.post-list a:hover,
+.term:hover,
+.post-tags a:hover,
+.post-nav a:hover,
+.post-body a:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.layout-page { --logo-left: var(--panel-logo-left); }
+@media (min-width: 721px) {
+  .layout-home { --logo-left: var(--panel-logo-left); }
+}
+
+/* ---- サイトロゴグループ（サイト名 + kicker） ---- */
+.logo-group {
+  position: fixed;
+  top: 50%;
+  left: var(--logo-left);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+  z-index: 10;
+}
+
+/* ---- サイト名（writing-mode で 90° 回転・縦組み、左端沿い） ---- */
+.site-title {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-weight: 700;
+  font-size: min(11.5vw, 11.8vh);
+  line-height: 0.75;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+  color: var(--bg);
+  text-decoration: none;
+}
+/* ホームでは <h1> がサイト名を包む。中のリンクは見た目を継承させる。 */
+.site-title a {
+  color: inherit;
+  text-decoration: none;
+}
+.site-title .tld {
+  font-weight: 300;
+  opacity: 0.6;
+}
+
+/* ---- サイトロゴに付随する kicker ---- */
+.logo-kicker {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  white-space: nowrap;
+  border-color: var(--bg) !important;
+  background: var(--fg) !important;
+  color: var(--bg) !important;
+}
+
+/* ---- 計測ラベル（罫線付き）。罫線（棒）は axis・coords 共通 ----
+   ラベルは枠の両 + マーク間に収まるよう max-inline-size で上限を持ち、罫線は flex で
+   余白を埋めつつ 48px で頭打ち、幅が足りなければ 0 まで縮んで自動的に消える。これにより
+   縦横・デスクトップ/モバイルを問わず「+ マークと重なるなら棒は出さない」が成立する。
+   axis / coords の最大幅はフレームの文脈ごとに CSS 変数で差し替える。 */
+.axis, .coords {
+  font-size: 11px;
+  font-weight: 300;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.axis {
+  letter-spacing: 0.32em;
+  opacity: 0.7;
+  max-inline-size: var(--axis-max, calc(100vi - var(--frame-pad) - var(--frame-pad) - 32px));
+}
+.coords {
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  max-inline-size: var(--coords-max, calc(100vw - var(--frame-pad) - var(--frame-pad) - 32px));
+}
+.field-frame .axis {
+  position: absolute;
+  top: 50%;
+  right: var(--frame-right, var(--frame-pad));
+  transform: translate(50%, -50%);
+  background: var(--field-label-bg, var(--bg));
+  padding: 12px 0;
+  writing-mode: vertical-rl;
+}
+.field-frame .coords {
+  position: absolute;
+  left: var(--coords-left, 50%);
+  bottom: var(--frame-pad);
+  transform: translate(-50%, 50%);
+  background: var(--field-label-bg, var(--bg));
+  padding: 2px 12px;
+  opacity: 0.9;
+}
+.axis::before, .axis::after,
+.coords::before, .coords::after {
+  content: "";
+  background: currentColor;
+  /* 論理プロパティで主軸＝罫線の長さ(inline-size 48px)・交差軸＝太さ(block-size 1px)を直接指定。
+     擬似要素は親の書字方向を継承するので、縦組み/横組みのどちらでも正しい向きになる。
+     flex-shrink で幅が足りなければ 0 まで縮み、自動的に消える。 */
+  flex: 0 1 auto;
+  inline-size: 48px;
+  block-size: 1px;
+}

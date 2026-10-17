@@ -1,0 +1,44 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{{- /* テーマの初期化。CSS 適用前に data-theme を確定させ、ちらつき（FOUC）を防ぐ。
+       保存済みの選択を最優先し、無ければ OS の配色設定に従う。既定はダーク。 */ -}}
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem('contour-theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
+<title>{{ if .IsHome }}{{ .Title }}{{ else }}{{ .Title }} — {{ site.Title }}{{ end }}</title>
+{{- /* description / canonical / robots / hreflang / Open Graph / Twitter Card / JSON-LD は seo.html に集約。 */ -}}
+{{ partial "seo.html" . }}
+{{- /* RSS の自動発見。自分の RSS 出力があればそれ、無いページではサイトのフィードを案内する。
+       RSS 出力を無効にしたサイトではどちらも無いので何も出ない。 */ -}}
+{{- with or (.OutputFormats.Get "rss") (site.Home.OutputFormats.Get "rss") }}
+<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">{{ end }}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,600&display=swap" rel="stylesheet">
+{{- /* base + components は全ページ共通。ホームは landing、それ以外は post を足す。
+       Concat のキャッシュキーは出力パスなので、内容が異なるバリアントごとに分ける。 */ -}}
+{{- $variant := cond .IsHome "home" "page" -}}
+{{- $css := slice (resources.Get "css/base.css") (resources.Get "css/components.css") -}}
+{{- $css = $css | append (cond .IsHome (resources.Get "css/landing.css") (resources.Get "css/post.css")) -}}
+{{- $bundle := $css | resources.Concat (printf "css/contour-%s.css" $variant) -}}
+{{- if hugo.IsProduction }}{{ $bundle = $bundle | minify | fingerprint }}{{ end -}}
+<link rel="stylesheet" href="{{ $bundle.RelPermalink }}"{{ with $bundle.Data.Integrity }} integrity="{{ . }}" crossorigin="anonymous"{{ end }}>
+{{- /* fg / bg が params にあれば base.css の素の二色（--fg-src / --bg-src）を上書きする。
+       data-theme によるライト/ダークのスワップはこの二色を入れ替えて成立する。
+       canvas 用の rgb 三つ組は hex から自動算出するので hex だけ指定すればよい。 */ -}}
+{{- if or site.Params.fg site.Params.bg }}
+<style>:root{
+{{- with site.Params.fg }}--fg-src:{{ . }};--fg-src-rgb:{{ partial "hex2rgb.html" . }};{{ end }}
+{{- with site.Params.bg }}--bg-src:{{ . }};--bg-src-rgb:{{ partial "hex2rgb.html" . }};{{ end }}
+}</style>
+{{- end }}

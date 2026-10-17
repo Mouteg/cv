@@ -1,0 +1,91 @@
+{{- /* 検索エンジンと共有プレビュー向けのメタデータ。head.html から <title> の直後に呼ばれる。
+       出すもの: description / author / keywords、canonical、robots、hreflang、
+       Open Graph、Twitter Card、JSON-LD（ホーム = WebSite、記事 = BlogPosting）。
+       説明文はページの description → 記事なら本文の要約 → サイト既定の順で決める。
+       記事かどうかは「セクション配下の通常ページ」で判定する（ルート直下の単体ページは記事扱いしない）。 */ -}}
+{{- $isArticle := and .IsPage .Section -}}
+{{- $desc := .Description -}}
+{{- if and (not $desc) .IsPage }}
+  {{- /* 要約は HTML なので、見出し連番（render-heading の <i>NN</i>）を落とし、タグは空白に
+         置き換えてから実体参照を戻す（plainify だとブロック同士が詰まって読みにくい）。 */ -}}
+  {{- $desc = .Summary | replaceRE `<i>\d+</i>` "" | replaceRE `<[^>]*>` " " | htmlUnescape | replaceRE `\s+` " " | strings.TrimSpace | truncate 160 -}}
+{{- end -}}
+{{- $desc = $desc | default site.Params.description -}}
+{{- $img := partial "seo-image.html" . -}}
+{{- $locale := replace .Language.Locale "-" "_" -}}
+{{- $rfc3339 := "2006-01-02T15:04:05Z07:00" -}}
+{{- with $desc }}
+<meta name="description" content="{{ . }}">{{ end }}
+{{- with site.Params.author }}
+<meta name="author" content="{{ . }}">{{ end }}
+{{- /* keywords はページの tags を優先し、無ければサイト既定。文字列/配列のどちらでも受ける。 */ -}}
+{{- with or .Params.tags site.Params.keywords }}
+<meta name="keywords" content="{{ if reflect.IsSlice . }}{{ delimit . ", " }}{{ else }}{{ . }}{{ end }}">{{ end }}
+{{- /* robots は front matter の robots を最優先。検索結果ページと 404 は索引させない。 */ -}}
+{{- with .Params.robots | default (cond (or (eq .Layout "search") (eq .Kind "404")) "noindex" "") }}
+<meta name="robots" content="{{ . }}">{{ end }}
+<link rel="canonical" href="{{ .Permalink }}">
+{{- /* 翻訳版があるページは hreflang で言語版を相互参照させる（自分自身も含めた全言語分）。
+       x-default は既定言語の版を指し、どの言語にも一致しない訪問者の着地先を示す。 */ -}}
+{{- if .IsTranslated }}
+{{- range .AllTranslations }}
+<link rel="alternate" hreflang="{{ .Language.Lang }}" href="{{ .Permalink }}">
+{{- end }}
+{{- with hugo.Sites.Default }}{{ $default := .Language.Lang }}
+{{- range $.AllTranslations }}{{ if eq .Language.Lang $default }}
+<link rel="alternate" hreflang="x-default" href="{{ .Permalink }}">{{ end }}{{ end }}{{ end }}
+{{- end }}
+{{- /* Open Graph。og:title はページ名だけにし、サイト名は og:site_name で分けて渡す。 */ -}}
+<meta property="og:type" content="{{ if $isArticle }}article{{ else }}website{{ end }}">
+<meta property="og:site_name" content="{{ site.Title }}">
+<meta property="og:title" content="{{ .Title }}">
+{{- with $desc }}
+<meta property="og:description" content="{{ . }}">{{ end }}
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:locale" content="{{ $locale }}">
+{{- range .Translations }}
+<meta property="og:locale:alternate" content="{{ replace .Language.Locale "-" "_" }}">{{ end }}
+{{- with $img.url }}
+<meta property="og:image" content="{{ . }}">
+{{- with $img.width }}
+<meta property="og:image:width" content="{{ . }}">
+<meta property="og:image:height" content="{{ $img.height }}">{{ end }}
+{{- end }}
+{{- if $isArticle }}
+{{- if not .PublishDate.IsZero }}
+<meta property="article:published_time" content="{{ .PublishDate.Format $rfc3339 }}">{{ end }}
+{{- if and (not .Lastmod.IsZero) (ne .Lastmod .PublishDate) }}
+<meta property="article:modified_time" content="{{ .Lastmod.Format $rfc3339 }}">{{ end }}
+{{- with .CurrentSection }}
+<meta property="article:section" content="{{ .Title }}">{{ end }}
+{{- range .GetTerms "tags" }}
+<meta property="article:tag" content="{{ .LinkTitle }}">{{ end }}
+{{- end }}
+{{- /* Twitter Card。title / description / image は og:* が読まれるので card 種別だけ出す。
+       大きい画像カードは横長（おおむね 2:1）の画像向きなので、実寸が分かって横長でないもの
+       （正方形のアイコンなど）は小さいサマリーカードにする。実寸不明なら横長とみなす。 */ -}}
+{{- $card := "summary" -}}
+{{- if $img.url }}{{ $card = cond (and $img.width (lt (div (float $img.width) $img.height) 1.5)) "summary" "summary_large_image" }}{{ end -}}
+<meta name="twitter:card" content="{{ $card }}">
+{{- /* JSON-LD。dict を組んで jsonify することでエスケープを Hugo に任せる。 */ -}}
+{{- $ld := dict -}}
+{{- if .IsHome }}
+  {{- $ld = dict "@context" "https://schema.org" "@type" "WebSite" "name" site.Title "url" .Permalink "inLanguage" .Language.Locale -}}
+  {{- with $desc }}{{ $ld = merge $ld (dict "description" .) }}{{ end -}}
+{{- else if $isArticle }}
+  {{- $ld = dict "@context" "https://schema.org" "@type" "BlogPosting"
+       "headline" .Title "url" .Permalink "inLanguage" .Language.Locale "wordCount" .WordCount
+       "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink) -}}
+  {{- with $desc }}{{ $ld = merge $ld (dict "description" .) }}{{ end -}}
+  {{- with $img.url }}{{ $ld = merge $ld (dict "image" (slice .)) }}{{ end -}}
+  {{- if not .PublishDate.IsZero }}{{ $ld = merge $ld (dict "datePublished" (.PublishDate.Format $rfc3339)) }}{{ end -}}
+  {{- if not .Lastmod.IsZero }}{{ $ld = merge $ld (dict "dateModified" (.Lastmod.Format $rfc3339)) }}{{ end -}}
+  {{- with site.Params.author }}{{ $ld = merge $ld (dict "author" (dict "@type" "Person" "name" .)) }}{{ end -}}
+  {{- with .GetTerms "tags" }}
+    {{- $tags := slice }}{{ range . }}{{ $tags = $tags | append .LinkTitle }}{{ end }}
+    {{- $ld = merge $ld (dict "keywords" $tags) -}}
+  {{- end -}}
+{{- end -}}
+{{- with $ld }}
+<script type="application/ld+json">{{ jsonify . | safeJS }}</script>
+{{- end }}

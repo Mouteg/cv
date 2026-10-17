@@ -1,0 +1,9 @@
+{{- /* 等高線表示領域の四隅マークと計測ラベル。配置は .field-frame の文脈で決まる。
+       axis / coords はサイト設定が既定だが、呼び出し側が差し替えられる
+       （例: 404 は座標の代わりに接続エラーを流す）。coords の差し替えには
+       点滅カーソル等のマークアップを許すため safeHTML を通す。 */ -}}
+<div class="field-frame{{ with .class }} {{ . }}{{ end }}"{{ with .frame }} data-contour-frame="{{ . }}"{{ end }}>
+  {{ partial "marks.html" . }}
+  <span class="axis">{{ .axis | default site.Params.axis }}</span>
+  <span class="coords" data-contour-coords{{ with .frame }} data-contour-frame="{{ . }}"{{ end }}>{{ with .coords }}{{ . | safeHTML }}{{ else }}{{ site.Params.coords }}{{ end }}</span>
+</div>

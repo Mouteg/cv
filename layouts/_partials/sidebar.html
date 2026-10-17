@@ -1,0 +1,27 @@
+{{- /* コンテンツページ左側の前景色サイドバー。コンテキストは現在ページ。
+       404 では地図データが届かなかった体で、等高線の代わりにプレースホルダーの
+       + ラティスを描き、計測ラベルをそのまま接続エラーの表示に転用する。 */ -}}
+{{- $is404 := eq .Kind "404" -}}
+<aside class="site-panel sidebar">
+  {{- /* 描画域が狭いぶん cell を細かくする。色は背景色（前景色パネル上に描くため）。
+         404 では地形の代わりに、フレームの + マークと座標系を共有する
+         読み込み前プレースホルダーの + ラティスを同じ canvas に描く。 */}}
+  {{ if $is404 }}
+  {{ partial "contour-canvas.html" (dict "class" "sidebar-terrain" "frame" "sidebar" "color" "--bg-rgb" "lattice" "132") }}
+  {{ else }}
+  {{ partial "contour-canvas.html" (dict "class" "sidebar-terrain" "frame" "sidebar" "color" "--bg-rgb" "cell" "10") }}
+  {{ end }}
+  {{ $frame := dict "class" "sidebar-field" "frame" "sidebar" }}
+  {{ if $is404 }}
+  {{- /* coords ラベルは flex（罫線との間に gap）なので、テキストとカーソルを
+         1 つの span に包んで単一の flex アイテムにする（gap の混入を防ぐ）。 */}}
+  {{ $frame = merge $frame (dict
+       "axis" "Elevation / Out of Range"
+       "coords" `<span>No data received<i class="lost-cursor"></i></span>`) }}
+  {{ end }}
+  {{ partial "field-frame.html" $frame }}
+  {{ partial "logo.html" (dict "heading" false) }}
+  <div class="menu">
+    {{ partial "menu.html" . }}
+  </div>
+</aside>

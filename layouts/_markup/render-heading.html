@@ -1,0 +1,9 @@
+{{- /* 見出しはレベルを問わず同じ形で描く。末尾にセクション URL へのアンカーリンク（#）を置き、
+       site.Params.showHeadingAnchors = false で消せる。
+       aria-label の見出し文字列はテンプレートの属性コンテキストに任せてエスケープする。 */ -}}
+<h{{ .Level }} id="{{ .Anchor }}">
+  {{- .Text -}}
+  {{- if ne site.Params.showHeadingAnchors false -}}
+    <a class="heading-anchor" href="#{{ .Anchor }}" aria-label="Link to “{{ .PlainText }}”">#</a>
+  {{- end -}}
+</h{{ .Level }}>

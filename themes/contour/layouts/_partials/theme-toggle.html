@@ -1,0 +1,14 @@
+{{- /* ライト/ダーク切り替えボタン。モノクロのテーマなので前景色と背景色を入れ替えるだけ。
+       全ページ共通で右ペイン（背景色エリア）の右上に固定し、ページ間で位置が動かないようにする。
+       アイコンは左半分が輪郭・右半分が塗りの円で、モノクロの双対（明暗の反転）を表す。
+       色は currentColor 追従で、サイト共通のホバー反転に倣う。 */ -}}
+<button type="button"
+        class="theme-toggle"
+        data-theme-toggle
+        aria-label="Toggle light / dark theme"
+        title="Toggle light / dark theme">
+  <svg class="theme-toggle-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <path d="M8 1.6 A6.4 6.4 0 0 1 8 14.4 Z" fill="currentColor"/>
+  </svg>
+</button>

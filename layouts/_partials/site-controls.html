@@ -1,0 +1,7 @@
+{{- /* 右上固定のサイト操作群。テーマ切り替えボタンと言語スイッチャーを縦に積む。
+       全ページで同じ位置に出すことで、言語ラベルの配置をサイト全体で一貫させる。
+       コンテキストは現在ページ（lang-switch の翻訳判定に使う）。 */ -}}
+<div class="site-controls">
+  {{ partial "theme-toggle.html" . }}
+  {{ partial "lang-switch.html" . }}
+</div>
