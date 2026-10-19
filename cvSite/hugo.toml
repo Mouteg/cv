@@ -1,7 +1,7 @@
 baseURL = "https://mobiusone.org/"
 defaultContentLanguage = "en"
 locale = "en-AU"
-title = "Contour"
+title = "CV"
 theme = "contour"
 
 # Enable the standard taxonomies (tags / categories).
@@ -26,10 +26,10 @@ theme = "contour"
   logoName = "Ivan Oh"
   logoTLD = " CV"
   kicker = "Software Engineer · Sydney"
-  description = "A topographic Hugo theme for engineering blogs."
+  description = "Small cv for Ivan Oh"
   # SEO metadata (_partials/seo.html). author is used for the author meta tag and the JSON-LD author;
   # images is the default share-preview image (under static/, 1200×630 recommended).
-  author = "Contour"
+  author = "Ivan Oh"
   # images = ["/images/og-default.png"]
   # Defaults for the map-style decorative labels.
   axis = "Elevation / Isoline Field — N=54"
@@ -42,7 +42,7 @@ theme = "contour"
   # Available values: x, bluesky, threads, mastodon, hatena, hackernews, reddit, facebook, line,
   # telegram, whatsapp, mail, copy (copy the URL), native (the device's share sheet)
   showShare = true
-  shareNetworks = ["x", "bluesky", "hackernews", "reddit", "copy", "native"]
+#  shareNetworks = ["x", "bluesky", "hackernews", "reddit", "copy", "native"]
 
   # Contour terrain settings (all optional; unset keys keep the theme's look).
   # A page can override any of them in front matter under `contour:`.
